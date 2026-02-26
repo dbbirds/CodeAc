@@ -31,21 +31,18 @@ You need two programs: **Node.js** (runs the app) and **Git** (downloads the cod
 1. Go to [nodejs.org](https://nodejs.org)
 2. Click the big **"LTS"** download button (LTS = stable version)
 3. Open the downloaded file and click through the installer (all defaults are fine)
-4. To verify it worked: open **Terminal** (Mac) or **Command Prompt** (Windows)
+4. To verify it worked: open **Terminal** (press `Cmd+Space`, type "Terminal", press Enter)
    and type `node --version` then press Enter. You should see something like `v20.x.x`
 
 ### Install Git
-- **Mac:** Git is likely already installed. Type `git --version` in Terminal to check.
-  If not, you'll be prompted to install it automatically.
-- **Windows:** Go to [git-scm.com](https://git-scm.com), download and run the installer
-  (all defaults are fine).
+Git is likely already installed on your Mac. Open Terminal and type `git --version` then press Enter.
+If not installed, a popup will appear offering to install it — click **Install** and follow the prompts.
 
 ---
 
 ## Step 2 — Download the app code
 
-1. Open **Terminal** (Mac: press `Cmd+Space`, type "Terminal") or
-   **Command Prompt** (Windows: press `Win+R`, type "cmd")
+1. Open **Terminal** (press `Cmd+Space`, type "Terminal", press Enter)
 
 2. Navigate to where you want to save the project. For example, your Desktop:
    ```
@@ -178,11 +175,16 @@ Vercel is the service that makes your app available on the internet. Free for pe
 This file stores your secret keys locally so the app knows how to connect to Firebase.
 
 1. In your project folder, find the file called `.env.local.example`
-2. Make a copy of it and name the copy `.env.local`
-   - Mac Terminal: `cp .env.local.example .env.local`
-   - Windows Command Prompt: `copy .env.local.example .env.local`
-3. Open `.env.local` in any text editor (Notepad on Windows, TextEdit on Mac,
-   or a free editor like [VS Code](https://code.visualstudio.com))
+2. Make a copy of it and name the copy `.env.local` — run this in Terminal:
+   ```
+   cp .env.local.example .env.local
+   ```
+3. Open `.env.local` in a text editor. The easiest free option is
+   [VS Code](https://code.visualstudio.com) — download it, then from Terminal run:
+   ```
+   open -a "Visual Studio Code" .env.local
+   ```
+   Or just open it in TextEdit: `open -e .env.local`
 4. Fill in your Firebase values from the tab you left open in Step 3:
 
    ```
@@ -211,7 +213,7 @@ This file stores your secret keys locally so the app knows how to connect to Fir
 
 1. Go to [github.com](https://github.com) and click **"New"** to create a new repository
 2. Name it `home-hq`, set it to **Private**, and click **"Create repository"**
-3. Back in your Terminal/Command Prompt (in the CodeAc folder), run these commands
+3. Back in Terminal (in the CodeAc folder), run these commands
    one at a time (replace `YOUR_GITHUB_USERNAME` with your actual GitHub username):
    ```
    git remote set-url origin https://github.com/YOUR_GITHUB_USERNAME/home-hq.git
@@ -276,23 +278,18 @@ the two of you:
 
 ---
 
-## Step 9 — Add to your phone home screens
+## Step 9 — Add to your iPhones' home screens
 
 This makes the app feel like a native app — tap an icon and it opens full screen.
+Do this on both your phone and Jenna's.
 
-**iPhone:**
-1. Open Safari (must be Safari, not Chrome)
+1. Open **Safari** (must be Safari, not Chrome)
 2. Go to your Vercel URL
-3. Tap the **Share** button (box with arrow pointing up)
+3. Tap the **Share** button (the box with an arrow pointing up, at the bottom of the screen)
 4. Scroll down and tap **"Add to Home Screen"**
 5. Name it "Home HQ" → tap **"Add"**
 
-**Android:**
-1. Open Chrome
-2. Go to your Vercel URL
-3. Tap the three-dot menu (⋮) in the top right
-4. Tap **"Add to Home screen"**
-5. Name it "Home HQ" → tap **"Add"**
+The app icon will appear on the home screen like any other app.
 
 ---
 
@@ -319,4 +316,4 @@ npm run dev
 ```
 
 Then open [http://localhost:3000](http://localhost:3000) in your browser.
-Press `Ctrl+C` in Terminal to stop it.
+Press `Ctrl+C` in Terminal to stop it (yes, `Ctrl` not `Cmd` — this one's the exception).
