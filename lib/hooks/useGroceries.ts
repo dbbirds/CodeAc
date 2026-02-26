@@ -1,0 +1,90 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import {
+  collection, query, orderBy, onSnapshot,
+  addDoc, updateDoc, doc, Timestamp,
+} from 'firebase/firestore'
+import { db } from '../firebase'
+import type { GroceryItem, AppUser } from '../types'
+
+function fromFirestore(id: string, data: Record<string, unknown>): GroceryItem {
+  return {
+    id,
+    name:        data.name as string,
+    quantity:    data.quantity as string | undefined,
+    category:    data.category as string | undefined,
+    recurring:   data.recurring as boolean,
+    boughtAt:    data.boughtAt ? (data.boughtAt as { toDate(): Date }).toDate() : null,
+    boughtBy:    (data.boughtBy as string | null) ?? null,
+    boughtByName:(data.boughtByName as string | null) ?? null,
+    addedBy:     data.addedBy as string,
+    addedByName: data.addedByName as string,
+    createdAt:   (data.createdAt as { toDate(): Date }).toDate(),
+  }
+}
+
+export function useGroceries() {
+  const [items, setItems]     = useState<GroceryItem[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const q = query(collection(db, 'groceries'), orderBy('createdAt', 'asc'))
+    const unsub = onSnapshot(q, snap => {
+      setItems(snap.docs.map(d => fromFirestore(d.id, d.data())))
+      setLoading(false)
+    })
+    return unsub
+  }, [])
+
+  async function addItem(
+    data: { name: string; quantity?: string; category?: string; recurring: boolean },
+    user: AppUser
+  ) {
+    await addDoc(collection(db, 'groceries'), {
+      ...data,
+      boughtAt:     null,
+      boughtBy:     null,
+      boughtByName: null,
+      addedBy:      user.uid,
+      addedByName:  user.displayName,
+      createdAt:    Timestamp.now(),
+    })
+  }
+
+  async function markBought(item: GroceryItem, user: AppUser) {
+    const ref = doc(db, 'groceries', item.id)
+    await updateDoc(ref, {
+      boughtAt:     Timestamp.now(),
+      boughtBy:     user.uid,
+      boughtByName: user.displayName,
+    })
+  }
+
+  async function markUnbought(item: GroceryItem) {
+    const ref = doc(db, 'groceries', item.id)
+    await updateDoc(ref, {
+      boughtAt:     null,
+      boughtBy:     null,
+      boughtByName: null,
+    })
+  }
+
+  /** Remove one-time bought items; reset recurring ones */
+  async function clearBoughtItems(items: GroceryItem[]) {
+    const { deleteDoc } = await import('firebase/firestore')
+    const bought = items.filter(i => i.boughtAt !== null)
+    await Promise.all(
+      bought.map(item => {
+        const ref = doc(db, 'groceries', item.id)
+        if (item.recurring) {
+          return updateDoc(ref, { boughtAt: null, boughtBy: null, boughtByName: null })
+        } else {
+          return deleteDoc(ref)
+        }
+      })
+    )
+  }
+
+  return { items, loading, addItem, markBought, markUnbought, clearBoughtItems }
+}
