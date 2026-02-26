@@ -1,6 +1,6 @@
 # Home HQ — Setup Guide
 
-## What you need to set up (one-time, ~20 minutes)
+## What you need to set up (one-time, ~15 minutes)
 
 ---
 
@@ -50,38 +50,17 @@ service firebase.storage {
 
 ---
 
-### 2. Set up Resend (for email reminders)
+### 2. Set up environment variables
 
-1. Go to [resend.com](https://resend.com) and create a free account
-2. Verify your domain (or use Resend's free test domain)
-3. Create an API key
-
----
-
-### 3. Set up environment variables
-
-Copy `.env.local.example` to `.env.local` and fill in all values:
+Copy `.env.local.example` to `.env.local` and fill in your Firebase values:
 
 ```bash
 cp .env.local.example .env.local
 ```
 
-For the Firebase Admin SDK (used by the email reminder API):
-- Firebase Console → Project Settings → **Service accounts** → Generate new private key
-- Download the JSON file and extract `project_id`, `client_email`, `private_key`
-
-Add these additional variables to `.env.local`:
-```
-FIREBASE_ADMIN_PROJECT_ID=your_project_id
-FIREBASE_ADMIN_CLIENT_EMAIL=firebase-adminsdk-xxx@your-project.iam.gserviceaccount.com
-FIREBASE_ADMIN_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
-
-CRON_SECRET=choose_a_random_secret_string
-```
-
 ---
 
-### 4. Set up Google Calendar embed
+### 3. Set up Google Calendar embed
 
 1. Go to [calendar.google.com](https://calendar.google.com) on desktop
 2. Create a new calendar called "Home HQ" and share it with Jenna's Google account
@@ -93,7 +72,7 @@ CRON_SECRET=choose_a_random_secret_string
 
 ---
 
-### 5. Deploy to Vercel
+### 4. Deploy to Vercel
 
 ```bash
 npm install -g vercel
@@ -102,11 +81,10 @@ vercel
 
 - Follow the prompts to link your project
 - Add all your `.env.local` variables in Vercel Dashboard → Settings → Environment Variables
-- Update `vercel.json` with your actual `CRON_SECRET`
 
 ---
 
-### 6. Add to your phone home screen
+### 5. Add to your phone home screen
 
 **iPhone (Safari):**
 - Open the app URL → Share → "Add to Home Screen"
@@ -116,7 +94,7 @@ vercel
 
 ---
 
-### 7. Let Jenna in
+### 6. Let Jenna in
 
 Once deployed, share the URL with Jenna. When she opens it and signs in with Google, she'll have full access to all tabs automatically.
 
