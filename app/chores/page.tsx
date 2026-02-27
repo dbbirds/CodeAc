@@ -24,7 +24,7 @@ export default function ChoresPage() {
   const visible = filter === 'done'
     ? done
     : filter === 'mine'
-      ? pending.filter(c => !c.assignedTo || c.assignedTo === user.uid)
+      ? pending.filter(c => !c.assignedTo || c.assignedTo === user?.uid)
       : pending
 
   return (
