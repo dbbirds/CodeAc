@@ -35,6 +35,8 @@ export default function ProjectsPage() {
   const [selected, setSelected]     = useState<Project | null>(null)
   const [statusFilter, setFilter]   = useState<'all' | Project['status']>('all')
 
+  if (!user) return null
+
   const filtered = projects
     .filter(p => statusFilter === 'all' || p.status === statusFilter)
     .sort((a, b) => PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority])
