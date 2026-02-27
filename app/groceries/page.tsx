@@ -22,8 +22,6 @@ export default function GroceriesPage() {
   const [modalOpen, setModalOpen] = useState(false)
   const [clearing, setClearing]  = useState(false)
 
-  if (!user) return null
-
   const pending = items.filter(i => i.boughtAt === null)
   const bought  = items.filter(i => i.boughtAt !== null)
 
