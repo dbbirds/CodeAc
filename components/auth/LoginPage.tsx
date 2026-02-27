@@ -42,7 +42,7 @@ export function LoginPage({ onSignIn }: LoginPageProps) {
         </button>
 
         <p className="text-center text-xs text-gray-400 mt-6">
-          Only you and Jenna can access this app.
+          An app for Philo's House
         </p>
       </div>
     </div>
