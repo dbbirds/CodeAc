@@ -16,8 +16,6 @@ export default function ChoresPage() {
   const [modalOpen, setModalOpen] = useState(false)
   const [filter, setFilter] = useState<'all' | 'mine' | 'done'>('all')
 
-  if (!user) return null
-
   const pending = chores.filter(c => c.completedAt === null)
   const done    = chores.filter(c => c.completedAt !== null)
 
@@ -77,8 +75,8 @@ export default function ChoresPage() {
               <ChoreItem
                 key={chore.id}
                 chore={chore}
-                user={user}
-                onComplete={(c: Chore) => completeChore(c, user)}
+                user={user!}
+                onComplete={(c: Chore) => completeChore(c, user!)}
                 onUncomplete={uncompleteChore}
               />
             ))}
@@ -100,7 +98,7 @@ export default function ChoresPage() {
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         onAdd={addChore}
-        user={user}
+        user={user!}
         users={[]}
       />
     </AppShell>

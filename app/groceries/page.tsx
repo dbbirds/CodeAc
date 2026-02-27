@@ -22,8 +22,6 @@ export default function GroceriesPage() {
   const [modalOpen, setModalOpen] = useState(false)
   const [clearing, setClearing]  = useState(false)
 
-  if (!user) return null
-
   const pending = items.filter(i => i.boughtAt === null)
   const bought  = items.filter(i => i.boughtAt !== null)
 
@@ -68,7 +66,7 @@ export default function GroceriesPage() {
                     <GroceryRow
                       key={item.id}
                       item={item}
-                      onCheck={() => markBought(item, user)}
+                      onCheck={() => markBought(item, user!)}
                     />
                   ))}
                 </div>
@@ -125,7 +123,7 @@ export default function GroceriesPage() {
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         onAdd={addItem}
-        user={user}
+        user={user!}
       />
     </AppShell>
   )
