@@ -16,7 +16,7 @@ export default function ChoresPage() {
   const [modalOpen, setModalOpen] = useState(false)
   const [filter, setFilter] = useState<'all' | 'mine' | 'done'>('all')
 
-  if (!user) return null
+
 
   const pending = chores.filter(c => c.completedAt === null)
   const done    = chores.filter(c => c.completedAt !== null)
