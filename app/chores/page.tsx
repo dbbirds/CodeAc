@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { AppShell } from '@/components/AppShell'
 import { ChoreItem } from '@/components/chores/ChoreItem'
 import { AddChoreModal } from '@/components/chores/AddChoreModal'
@@ -20,6 +20,17 @@ export default function ChoresPage() {
 
   const pending = chores.filter(c => c.completedAt === null)
   const done    = chores.filter(c => c.completedAt !== null)
+
+  // Auto-clean done chores older than 5 days:
+  // one-time chores are deleted; recurring chores just have completedAt cleared
+  // (their nextDueDate was already bumped when completed)
+  useEffect(() => {
+    const FIVE_DAYS_MS = 5 * 24 * 60 * 60 * 1000
+    const now = Date.now()
+    const stale = done.filter(c => c.completedAt && now - c.completedAt.getTime() > FIVE_DAYS_MS)
+    stale.forEach(c => c.frequency === 'once' ? deleteChore(c.id) : uncompleteChore(c))
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chores])
 
   const visible = filter === 'done'
     ? done
