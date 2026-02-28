@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import {
   collection, query, orderBy, onSnapshot,
-  addDoc, updateDoc, doc, Timestamp,
+  addDoc, updateDoc, deleteDoc, doc, Timestamp, deleteField,
 } from 'firebase/firestore'
 import { db } from '../firebase'
 import type { GroceryItem, AppUser } from '../types'
@@ -76,9 +76,26 @@ export function useGroceries() {
     })
   }
 
+  async function updateItem(
+    id: string,
+    data: { name: string; quantity?: string; category?: string; store?: string; recurring: boolean }
+  ) {
+    const ref = doc(db, 'groceries', id)
+    await updateDoc(ref, {
+      name:      data.name,
+      quantity:  data.quantity  ?? deleteField(),
+      category:  data.category  ?? deleteField(),
+      store:     data.store     ?? deleteField(),
+      recurring: data.recurring,
+    })
+  }
+
+  async function deleteItem(id: string) {
+    await deleteDoc(doc(db, 'groceries', id))
+  }
+
   /** Remove one-time bought items; reset recurring ones */
   async function clearBoughtItems(items: GroceryItem[]) {
-    const { deleteDoc } = await import('firebase/firestore')
     const bought = items.filter(i => i.boughtAt !== null)
     await Promise.all(
       bought.map(item => {
@@ -92,5 +109,5 @@ export function useGroceries() {
     )
   }
 
-  return { items, loading, addItem, markBought, markUnbought, clearBoughtItems }
+  return { items, loading, addItem, updateItem, deleteItem, markBought, markUnbought, clearBoughtItems }
 }

@@ -3,20 +3,32 @@
 import { useState } from 'react'
 import { AppShell } from '@/components/AppShell'
 import { AddGroceryModal } from '@/components/groceries/AddGroceryModal'
+import { EditGroceryModal } from '@/components/groceries/EditGroceryModal'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { useGroceries } from '@/lib/hooks/useGroceries'
 import { useAuth } from '@/lib/hooks/useAuth'
-import { ShoppingCartIcon, PlusIcon, TrashIcon, ArrowPathIcon, ChevronDownIcon, ChevronRightIcon } from '@heroicons/react/24/outline'
+import { ShoppingCartIcon, PlusIcon, TrashIcon, ArrowPathIcon, ChevronDownIcon, ChevronRightIcon, PencilSquareIcon } from '@heroicons/react/24/outline'
 import type { GroceryItem } from '@/lib/types'
 import clsx from 'clsx'
 
 const STORES = ['Hannaford', 'Healthy Living', 'Costco']
+const CATEGORY_ORDER = ['Produce', 'Dairy', 'Meat', 'Bakery', 'Pantry', 'Frozen', 'Beverages', 'Household', 'Other']
+
+function sortByCategory(items: GroceryItem[]) {
+  return [...items].sort((a, b) => {
+    const ai = a.category ? CATEGORY_ORDER.indexOf(a.category) : CATEGORY_ORDER.length
+    const bi = b.category ? CATEGORY_ORDER.indexOf(b.category) : CATEGORY_ORDER.length
+    if (ai !== bi) return ai - bi
+    return a.name.localeCompare(b.name)
+  })
+}
 
 export default function GroceriesPage() {
   const { user } = useAuth()
-  const { items, loading, addItem, markBought, markUnbought, clearBoughtItems } = useGroceries()
+  const { items, loading, addItem, updateItem, deleteItem, markBought, markUnbought, clearBoughtItems } = useGroceries()
   const [modalOpen, setModalOpen]     = useState(false)
   const [modalStore, setModalStore]   = useState<string | undefined>(undefined)
+  const [editItem, setEditItem]       = useState<GroceryItem | null>(null)
   const [collapsed, setCollapsed]     = useState<Record<string, boolean>>({})
   const [clearing, setClearing]       = useState(false)
 
@@ -58,7 +70,7 @@ export default function GroceriesPage() {
         ) : (
           <>
             {STORES.map(store => {
-              const storeItems = pending.filter(i => i.store === store)
+              const storeItems = sortByCategory(pending.filter(i => i.store === store))
               const isCollapsed = !!collapsed[store]
               return (
                 <div key={store} className="card overflow-hidden p-0">
@@ -95,6 +107,7 @@ export default function GroceriesPage() {
                             key={item.id}
                             item={item}
                             onCheck={() => markBought(item, user!)}
+                            onEdit={() => setEditItem(item)}
                           />
                         ))
                       )}
@@ -106,7 +119,7 @@ export default function GroceriesPage() {
 
             {/* Items with no store assigned */}
             {(() => {
-              const unassigned = pending.filter(i => !i.store || !STORES.includes(i.store))
+              const unassigned = sortByCategory(pending.filter(i => !i.store || !STORES.includes(i.store)))
               if (unassigned.length === 0) return null
               const isCollapsed = !!collapsed['__other__']
               return (
@@ -127,7 +140,7 @@ export default function GroceriesPage() {
                   {!isCollapsed && (
                     <div className="divide-y divide-gray-50">
                       {unassigned.map(item => (
-                        <GroceryRow key={item.id} item={item} onCheck={() => markBought(item, user!)} />
+                        <GroceryRow key={item.id} item={item} onCheck={() => markBought(item, user!)} onEdit={() => setEditItem(item)} />
                       ))}
                     </div>
                   )}
@@ -165,7 +178,7 @@ export default function GroceriesPage() {
                 {!collapsed['__bought__'] && (
                   <div className="divide-y divide-gray-50">
                     {bought.map(item => (
-                      <GroceryRow key={item.id} item={item} onCheck={() => markUnbought(item)} bought />
+                      <GroceryRow key={item.id} item={item} onCheck={() => markUnbought(item)} onEdit={() => setEditItem(item)} bought />
                     ))}
                   </div>
                 )}
@@ -192,6 +205,13 @@ export default function GroceriesPage() {
         user={user!}
         defaultStore={modalStore}
       />
+
+      <EditGroceryModal
+        item={editItem}
+        onClose={() => setEditItem(null)}
+        onSave={updateItem}
+        onDelete={deleteItem}
+      />
     </AppShell>
   )
 }
@@ -199,10 +219,12 @@ export default function GroceriesPage() {
 function GroceryRow({
   item,
   onCheck,
+  onEdit,
   bought = false,
 }: {
   item: GroceryItem
   onCheck: () => void
+  onEdit: () => void
   bought?: boolean
 }) {
   return (
@@ -233,8 +255,15 @@ function GroceryRow({
         {item.recurring && <span className="text-xs text-brand-500">↻ recurring</span>}
       </div>
       {item.category && (
-        <span className="text-xs text-gray-400">{item.category}</span>
+        <span className="text-xs text-gray-400 mr-1">{item.category}</span>
       )}
+      <button
+        onClick={e => { e.stopPropagation(); onEdit() }}
+        className="flex-shrink-0 p-1 text-gray-300 hover:text-gray-500 transition-colors"
+        aria-label="Edit item"
+      >
+        <PencilSquareIcon className="w-4 h-4" />
+      </button>
     </div>
   )
 }
