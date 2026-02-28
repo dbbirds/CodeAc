@@ -11,6 +11,16 @@ import type { GroceryItem } from '@/lib/types'
 import clsx from 'clsx'
 
 const STORES = ['Hannaford', 'Healthy Living', 'Costco']
+const CATEGORY_ORDER = ['Produce', 'Dairy', 'Meat', 'Bakery', 'Pantry', 'Frozen', 'Beverages', 'Household', 'Other']
+
+function sortByCategory(items: GroceryItem[]) {
+  return [...items].sort((a, b) => {
+    const ai = a.category ? CATEGORY_ORDER.indexOf(a.category) : CATEGORY_ORDER.length
+    const bi = b.category ? CATEGORY_ORDER.indexOf(b.category) : CATEGORY_ORDER.length
+    if (ai !== bi) return ai - bi
+    return a.name.localeCompare(b.name)
+  })
+}
 
 export default function GroceriesPage() {
   const { user } = useAuth()
@@ -58,7 +68,7 @@ export default function GroceriesPage() {
         ) : (
           <>
             {STORES.map(store => {
-              const storeItems = pending.filter(i => i.store === store)
+              const storeItems = sortByCategory(pending.filter(i => i.store === store))
               const isCollapsed = !!collapsed[store]
               return (
                 <div key={store} className="card overflow-hidden p-0">
@@ -106,7 +116,7 @@ export default function GroceriesPage() {
 
             {/* Items with no store assigned */}
             {(() => {
-              const unassigned = pending.filter(i => !i.store || !STORES.includes(i.store))
+              const unassigned = sortByCategory(pending.filter(i => !i.store || !STORES.includes(i.store)))
               if (unassigned.length === 0) return null
               const isCollapsed = !!collapsed['__other__']
               return (
