@@ -36,6 +36,7 @@ export interface GroceryItem {
   name: string
   quantity?: string
   category?: string
+  store?: string
   recurring: boolean
   boughtAt: Date | null
   boughtBy: string | null

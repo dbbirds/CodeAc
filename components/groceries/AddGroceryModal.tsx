@@ -7,18 +7,26 @@ import type { AppUser } from '@/lib/types'
 interface AddGroceryModalProps {
   open: boolean
   onClose: () => void
-  onAdd: (data: { name: string; quantity?: string; category?: string; recurring: boolean }, user: AppUser) => Promise<void>
+  onAdd: (data: { name: string; quantity?: string; category?: string; store?: string; recurring: boolean }, user: AppUser) => Promise<void>
   user: AppUser
+  defaultStore?: string
 }
 
 const CATEGORIES = ['Produce', 'Dairy', 'Meat', 'Bakery', 'Pantry', 'Frozen', 'Beverages', 'Household', 'Other']
+const STORES = ['Hannaford', 'Healthy Living', 'Costco']
 
-export function AddGroceryModal({ open, onClose, onAdd, user }: AddGroceryModalProps) {
+export function AddGroceryModal({ open, onClose, onAdd, user, defaultStore }: AddGroceryModalProps) {
   const [name, setName]         = useState('')
   const [quantity, setQuantity] = useState('')
   const [category, setCategory] = useState('')
+  const [store, setStore]       = useState(defaultStore ?? '')
   const [recurring, setRecurring] = useState(false)
   const [saving, setSaving]     = useState(false)
+
+  function handleClose() {
+    setName(''); setQuantity(''); setCategory(''); setStore(defaultStore ?? ''); setRecurring(false)
+    onClose()
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -30,14 +38,12 @@ export function AddGroceryModal({ open, onClose, onAdd, user }: AddGroceryModalP
           name: name.trim(),
           quantity: quantity.trim() || undefined,
           category: category || undefined,
+          store: store || undefined,
           recurring,
         },
         user
       )
-      setName('')
-      setQuantity('')
-      setCategory('')
-      setRecurring(false)
+      setName(''); setQuantity(''); setCategory(''); setStore(defaultStore ?? ''); setRecurring(false)
       onClose()
     } finally {
       setSaving(false)
@@ -45,7 +51,7 @@ export function AddGroceryModal({ open, onClose, onAdd, user }: AddGroceryModalP
   }
 
   return (
-    <Modal open={open} onClose={onClose} title="Add Grocery Item">
+    <Modal open={open} onClose={handleClose} title="Add Grocery Item">
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="label">Item name</label>
@@ -56,6 +62,14 @@ export function AddGroceryModal({ open, onClose, onAdd, user }: AddGroceryModalP
             onChange={e => setName(e.target.value)}
             autoFocus
           />
+        </div>
+
+        <div>
+          <label className="label">Store</label>
+          <select className="input" value={store} onChange={e => setStore(e.target.value)}>
+            <option value="">— any store —</option>
+            {STORES.map(s => <option key={s} value={s}>{s}</option>)}
+          </select>
         </div>
 
         <div className="flex gap-2">
@@ -95,7 +109,7 @@ export function AddGroceryModal({ open, onClose, onAdd, user }: AddGroceryModalP
         </label>
 
         <div className="flex gap-2 pt-2">
-          <button type="button" onClick={onClose} className="btn-secondary flex-1">Cancel</button>
+          <button type="button" onClick={handleClose} className="btn-secondary flex-1">Cancel</button>
           <button type="submit" className="btn-primary flex-1" disabled={saving || !name.trim()}>
             {saving ? 'Adding…' : 'Add item'}
           </button>
