@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { AppShell } from '@/components/AppShell'
 import { AddGroceryModal } from '@/components/groceries/AddGroceryModal'
 import { EditGroceryModal } from '@/components/groceries/EditGroceryModal'
@@ -34,6 +34,15 @@ export default function GroceriesPage() {
 
   const pending = items.filter(i => i.boughtAt === null)
   const bought  = items.filter(i => i.boughtAt !== null)
+
+  // Auto-clear bought items older than 3 hours when the list loads/updates
+  useEffect(() => {
+    const THREE_HOURS_MS = 3 * 60 * 60 * 1000
+    const now = Date.now()
+    const stale = bought.filter(i => i.boughtAt && now - i.boughtAt.getTime() > THREE_HOURS_MS)
+    if (stale.length > 0) clearBoughtItems(stale)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items])
 
   function openModalFor(store?: string) {
     setModalStore(store)

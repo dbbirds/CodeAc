@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import {
   collection, query, orderBy, onSnapshot,
-  addDoc, updateDoc, doc, Timestamp,
+  addDoc, updateDoc, deleteDoc, doc, Timestamp, deleteField,
 } from 'firebase/firestore'
 import { db } from '../firebase'
 import { calcNextDueDate } from '../dates'
@@ -98,8 +98,20 @@ export function useChores() {
     const ref = doc(db, 'chores', id)
     const data: Record<string, unknown> = { ...updates }
     if (updates.nextDueDate) data.nextDueDate = Timestamp.fromDate(updates.nextDueDate)
+    // Clear frequency-specific fields that no longer apply
+    if (updates.frequency) {
+      if (updates.frequency !== 'weekly')  data.dayOfWeek    = deleteField()
+      if (updates.frequency !== 'monthly') data.dayOfMonth   = deleteField()
+      if (updates.frequency !== 'custom')  data.intervalDays = deleteField()
+    }
+    // Strip undefined values — Firestore rejects them
+    Object.keys(data).forEach(k => { if (data[k] === undefined) delete data[k] })
     await updateDoc(ref, data)
   }
 
-  return { chores, loading, addChore, completeChore, uncompleteChore, updateChore }
+  async function deleteChore(id: string) {
+    await deleteDoc(doc(db, 'chores', id))
+  }
+
+  return { chores, loading, addChore, completeChore, uncompleteChore, updateChore, deleteChore }
 }
