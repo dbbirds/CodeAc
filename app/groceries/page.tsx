@@ -49,8 +49,14 @@ export default function GroceriesPage() {
     setModalOpen(true)
   }
 
-  function toggleCollapse(store: string) {
-    setCollapsed(prev => ({ ...prev, [store]: !prev[store] }))
+  // Returns collapsed state; falls back to defaultVal if the user hasn't
+  // explicitly toggled this section yet.
+  function isCollapsedFor(key: string, defaultVal: boolean): boolean {
+    return key in collapsed ? !!collapsed[key] : defaultVal
+  }
+
+  function toggleCollapse(key: string, defaultVal: boolean) {
+    setCollapsed(prev => ({ ...prev, [key]: !isCollapsedFor(key, defaultVal) }))
   }
 
   async function handleClear() {
@@ -80,13 +86,13 @@ export default function GroceriesPage() {
           <>
             {STORES.map(store => {
               const storeItems = sortByCategory(pending.filter(i => i.store === store))
-              const isCollapsed = !!collapsed[store]
+              const isCollapsed = isCollapsedFor(store, storeItems.length === 0)
               return (
                 <div key={store} className="card overflow-hidden p-0">
                   {/* Store header */}
                   <div className="flex items-center gap-2 px-4 py-3 border-b border-gray-100">
                     <button
-                      onClick={() => toggleCollapse(store)}
+                      onClick={() => toggleCollapse(store, storeItems.length === 0)}
                       className="flex items-center gap-2 flex-1 text-left"
                     >
                       {isCollapsed
@@ -130,12 +136,12 @@ export default function GroceriesPage() {
             {(() => {
               const unassigned = sortByCategory(pending.filter(i => !i.store || !STORES.includes(i.store)))
               if (unassigned.length === 0) return null
-              const isCollapsed = !!collapsed['__other__']
+              const isCollapsed = isCollapsedFor('__other__', false)
               return (
                 <div className="card overflow-hidden p-0">
                   <div className="flex items-center gap-2 px-4 py-3 border-b border-gray-100">
                     <button
-                      onClick={() => toggleCollapse('__other__')}
+                      onClick={() => toggleCollapse('__other__', false)}
                       className="flex items-center gap-2 flex-1 text-left"
                     >
                       {isCollapsed
@@ -162,10 +168,10 @@ export default function GroceriesPage() {
               <div className="card overflow-hidden p-0">
                 <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
                   <button
-                    onClick={() => toggleCollapse('__bought__')}
+                    onClick={() => toggleCollapse('__bought__', true)}
                     className="flex items-center gap-2 flex-1 text-left"
                   >
-                    {!!collapsed['__bought__']
+                    {isCollapsedFor('__bought__', true)
                       ? <ChevronRightIcon className="w-4 h-4 text-gray-400 flex-shrink-0" />
                       : <ChevronDownIcon className="w-4 h-4 text-gray-400 flex-shrink-0" />
                     }
@@ -184,7 +190,7 @@ export default function GroceriesPage() {
                     Clear
                   </button>
                 </div>
-                {!collapsed['__bought__'] && (
+                {!isCollapsedFor('__bought__', true) && (
                   <div className="divide-y divide-gray-50">
                     {bought.map(item => (
                       <GroceryRow key={item.id} item={item} onCheck={() => markUnbought(item)} onEdit={() => setEditItem(item)} bought />
