@@ -46,6 +46,20 @@ export interface GroceryItem {
   createdAt: Date
 }
 
+// ─── Calendar (This Week) ────────────────────────────────────────────────────
+
+export type CalEventSource = 'home' | 'nanny'
+
+export interface CalEvent {
+  id: string
+  summary: string
+  start: string   // 'YYYY-MM-DD' for all-day, ISO datetime for timed
+  end: string
+  allDay: boolean
+  source: CalEventSource
+  label: string
+}
+
 // ─── Projects ────────────────────────────────────────────────────────────────
 
 export type ProjectStatus = 'not-started' | 'in-progress' | 'done'

@@ -5,8 +5,7 @@ import { AppShell } from '@/components/AppShell'
 import { useChores } from '@/lib/hooks/useChores'
 import { ChevronLeftIcon, ChevronRightIcon, CheckCircleIcon } from '@heroicons/react/24/outline'
 import { addWeeks, startOfWeek, addDays, format, isToday, isSameDay, isBefore, startOfDay } from 'date-fns'
-import type { Chore } from '@/lib/types'
-import type { CalEvent } from '@/app/api/week/route'
+import type { Chore, CalEvent } from '@/lib/types'
 import clsx from 'clsx'
 
 const SOURCE_STYLE: Record<string, { pill: string; border: string }> = {
