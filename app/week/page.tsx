@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { AppShell } from '@/components/AppShell'
 import { useChores } from '@/lib/hooks/useChores'
 import { ChevronLeftIcon, ChevronRightIcon, ChevronDownIcon, CheckCircleIcon } from '@heroicons/react/24/outline'
+import { CheckCircleIcon as CheckCircleSolidIcon } from '@heroicons/react/24/solid'
 import { addWeeks, startOfWeek, addDays, format, isToday, isSameDay, isBefore, startOfDay } from 'date-fns'
 import type { Chore, CalEvent } from '@/lib/types'
 import clsx from 'clsx'
@@ -64,6 +65,10 @@ export default function WeekPage() {
     return chores.filter(c => c.completedAt === null && isSameDay(c.nextDueDate, day))
   }
 
+  function completedChoresForDay(day: Date): Chore[] {
+    return chores.filter(c => c.completedAt !== null && isSameDay(c.completedAt, day))
+  }
+
   return (
     <AppShell title="This Week">
       <div className="px-4 py-4 space-y-3">
@@ -118,9 +123,10 @@ export default function WeekPage() {
         {days.map(day => {
           const today       = isToday(day)
           const past        = isBefore(day, todayStart) && !today
-          const dayEvents   = eventsForDay(day)
-          const dayChores   = choresForDay(day)
-          const count       = dayEvents.length + dayChores.length
+          const dayEvents    = eventsForDay(day)
+          const dayChores    = choresForDay(day)
+          const doneChores   = completedChoresForDay(day)
+          const count        = dayEvents.length + dayChores.length + doneChores.length
           const dayKey      = day.toISOString()
           const isCollapsed = isCollapsedFor(dayKey, past)
 
@@ -171,7 +177,8 @@ export default function WeekPage() {
                 count > 0 ? (
                   <div className="divide-y divide-gray-50">
                     {dayEvents.map(e => <EventRow key={e.id} event={e} />)}
-                    {dayChores.map(c => <ChoreRow  key={c.id} chore={c} />)}
+                    {dayChores.map(c => <ChoreRow key={c.id} chore={c} />)}
+                    {doneChores.map(c => <ChoreRow key={c.id} chore={c} completed />)}
                   </div>
                 ) : (
                   <p className="px-4 py-2.5 text-xs text-gray-300 italic">Nothing scheduled</p>
@@ -212,7 +219,21 @@ function EventRow({ event }: { event: CalEvent }) {
   )
 }
 
-function ChoreRow({ chore, overdue = false }: { chore: Chore; overdue?: boolean }) {
+function ChoreRow({ chore, overdue = false, completed = false }: { chore: Chore; overdue?: boolean; completed?: boolean }) {
+  if (completed) {
+    return (
+      <div className="flex items-center gap-3 px-4 py-2.5 border-l-[3px] border-l-green-400">
+        <span className="w-20 flex-shrink-0 flex justify-end">
+          <CheckCircleSolidIcon className="w-4 h-4 text-green-400" />
+        </span>
+        <p className="flex-1 min-w-0 text-sm text-gray-400 line-through truncate">{chore.name}</p>
+        <span className="flex-shrink-0 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-green-100 text-green-600">
+          {chore.completedByName?.split(' ')[0] ?? 'Done'}
+        </span>
+      </div>
+    )
+  }
+
   return (
     <div className={clsx(
       'flex items-center gap-3 px-4 py-2.5 border-l-[3px]',
