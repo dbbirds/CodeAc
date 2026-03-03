@@ -6,17 +6,20 @@ import clsx from 'clsx'
 import {
   CheckCircleIcon,
   ShoppingCartIcon,
+  QueueListIcon,
   CalendarDaysIcon,
 } from '@heroicons/react/24/outline'
 import {
   CheckCircleIcon as CheckCircleIconSolid,
   ShoppingCartIcon as ShoppingCartIconSolid,
+  QueueListIcon as QueueListIconSolid,
   CalendarDaysIcon as CalendarDaysIconSolid,
 } from '@heroicons/react/24/solid'
 
 const tabs = [
-  { href: '/chores',    label: 'Chores',    Icon: CheckCircleIcon,  ActiveIcon: CheckCircleIconSolid },
+  { href: '/chores',    label: 'Chores',    Icon: CheckCircleIcon,  ActiveIcon: CheckCircleIconSolid  },
   { href: '/groceries', label: 'Groceries', Icon: ShoppingCartIcon, ActiveIcon: ShoppingCartIconSolid },
+  { href: '/week',      label: 'This Week', Icon: QueueListIcon,    ActiveIcon: QueueListIconSolid    },
   { href: '/calendar',  label: 'Calendar',  Icon: CalendarDaysIcon, ActiveIcon: CalendarDaysIconSolid },
 ]
 
