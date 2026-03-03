@@ -7,7 +7,7 @@ export const runtime = 'nodejs'
 
 const SOURCES = [
   { envKey: 'HOME_HQ_ICAL_URL', source: 'home'  as const, label: 'Home HQ' },
-  { envKey: 'NANNY_ICAL_URL',   source: 'nanny' as const, label: 'Nanny'   },
+  { envKey: 'NANNY_ICAL_URL',   source: 'nanny' as const, label: 'Riley'   },
 ]
 
 // For all-day events use UTC date string to avoid timezone shifts

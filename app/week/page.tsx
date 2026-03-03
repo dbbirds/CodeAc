@@ -165,12 +165,22 @@ export default function WeekPage() {
 }
 
 function EventRow({ event }: { event: CalEvent }) {
-  const style   = SOURCE_STYLE[event.source] ?? SOURCE_STYLE.home
-  const timeStr = event.allDay ? 'All day' : format(new Date(event.start), 'h:mm a')
+  const style = SOURCE_STYLE[event.source] ?? SOURCE_STYLE.home
+  let timeStr: string
+  if (event.allDay) {
+    timeStr = 'All day'
+  } else if (event.source === 'nanny' && event.end) {
+    const s = new Date(event.start)
+    const e = new Date(event.end)
+    const fmt = (d: Date) => format(d, d.getMinutes() === 0 ? 'ha' : 'h:mma').toLowerCase()
+    timeStr = `${fmt(s)}–${fmt(e)}`
+  } else {
+    timeStr = format(new Date(event.start), 'h:mm a')
+  }
 
   return (
     <div className={clsx('flex items-center gap-3 px-4 py-2.5 border-l-[3px]', style.border)}>
-      <span className="w-14 flex-shrink-0 text-right text-[11px] text-gray-400 font-medium">
+      <span className="w-20 flex-shrink-0 text-right text-[11px] text-gray-400 font-medium">
         {timeStr}
       </span>
       <p className="flex-1 min-w-0 text-sm text-gray-800 truncate">{event.summary}</p>
@@ -187,7 +197,7 @@ function ChoreRow({ chore, overdue = false }: { chore: Chore; overdue?: boolean 
       'flex items-center gap-3 px-4 py-2.5 border-l-[3px]',
       overdue ? 'border-l-red-400' : 'border-l-amber-300',
     )}>
-      <span className="w-14 flex-shrink-0 flex justify-end">
+      <span className="w-20 flex-shrink-0 flex justify-end">
         <CheckCircleIcon className={clsx('w-4 h-4', overdue ? 'text-red-400' : 'text-amber-400')} />
       </span>
       <p className="flex-1 min-w-0 text-sm text-gray-700 truncate">{chore.name}</p>
@@ -195,7 +205,7 @@ function ChoreRow({ chore, overdue = false }: { chore: Chore; overdue?: boolean 
         'flex-shrink-0 text-[10px] font-semibold px-1.5 py-0.5 rounded-full',
         overdue ? 'bg-red-100 text-red-600' : 'bg-amber-100 text-amber-600',
       )}>
-        {chore.assignedToName ?? 'Chore'}
+        {chore.assignedToName?.split(' ')[0] ?? 'Chore'}
       </span>
     </div>
   )
