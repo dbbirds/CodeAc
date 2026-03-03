@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { AppShell } from '@/components/AppShell'
 import { useChores } from '@/lib/hooks/useChores'
-import { ChevronLeftIcon, ChevronRightIcon, CheckCircleIcon } from '@heroicons/react/24/outline'
+import { ChevronLeftIcon, ChevronRightIcon, ChevronDownIcon, CheckCircleIcon } from '@heroicons/react/24/outline'
 import { addWeeks, startOfWeek, addDays, format, isToday, isSameDay, isBefore, startOfDay } from 'date-fns'
 import type { Chore, CalEvent } from '@/lib/types'
 import clsx from 'clsx'
@@ -17,7 +17,15 @@ export default function WeekPage() {
   const [weekOffset, setWeekOffset] = useState(0)
   const [events, setEvents]         = useState<CalEvent[]>([])
   const [calLoading, setCalLoading] = useState(true)
+  const [collapsed, setCollapsed]   = useState<Record<string, boolean>>({})
   const { chores } = useChores()
+
+  function isCollapsedFor(key: string, defaultVal: boolean): boolean {
+    return key in collapsed ? !!collapsed[key] : defaultVal
+  }
+  function toggleCollapse(key: string, defaultVal: boolean) {
+    setCollapsed(prev => ({ ...prev, [key]: !isCollapsedFor(key, defaultVal) }))
+  }
 
   const weekStart = startOfWeek(addWeeks(new Date(), weekOffset), { weekStartsOn: 0 })
   const days      = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i))
@@ -108,26 +116,31 @@ export default function WeekPage() {
 
         {/* ── Day cards ── */}
         {days.map(day => {
-          const today     = isToday(day)
-          const past      = isBefore(day, todayStart) && !today
-          const dayEvents = eventsForDay(day)
-          const dayChores = choresForDay(day)
-          const count     = dayEvents.length + dayChores.length
+          const today       = isToday(day)
+          const past        = isBefore(day, todayStart) && !today
+          const dayEvents   = eventsForDay(day)
+          const dayChores   = choresForDay(day)
+          const count       = dayEvents.length + dayChores.length
+          const dayKey      = day.toISOString()
+          const isCollapsed = isCollapsedFor(dayKey, past)
 
           return (
             <div
-              key={day.toISOString()}
+              key={dayKey}
               className={clsx(
                 'card p-0 overflow-hidden',
                 today && 'ring-2 ring-brand-500',
                 past   && 'opacity-40',
               )}
             >
-              {/* Day header */}
-              <div className={clsx(
-                'px-4 py-2 flex items-center gap-2 border-b',
-                today ? 'bg-brand-600 border-brand-700' : 'bg-gray-50 border-gray-100',
-              )}>
+              {/* Day header — tap to collapse/expand */}
+              <div
+                className={clsx(
+                  'px-4 py-2 flex items-center gap-2 border-b cursor-pointer',
+                  today ? 'bg-brand-600 border-brand-700' : 'bg-gray-50 border-gray-100',
+                )}
+                onClick={() => toggleCollapse(dayKey, past)}
+              >
                 <span className={clsx(
                   'text-xs font-bold tracking-widest',
                   today ? 'text-white' : 'text-gray-500',
@@ -137,24 +150,32 @@ export default function WeekPage() {
                 <span className={clsx('text-xs', today ? 'text-brand-200' : 'text-gray-400')}>
                   {format(day, 'MMM d')}
                 </span>
-                {today && (
-                  <span className="ml-auto text-[10px] bg-white/20 text-white px-2 py-0.5 rounded-full font-semibold tracking-wide">
-                    TODAY
-                  </span>
-                )}
-                {!today && count > 0 && (
-                  <span className="ml-auto text-[10px] text-gray-300 font-medium">{count}</span>
-                )}
+                <span className="ml-auto flex items-center gap-1.5">
+                  {today && (
+                    <span className="text-[10px] bg-white/20 text-white px-2 py-0.5 rounded-full font-semibold tracking-wide">
+                      TODAY
+                    </span>
+                  )}
+                  {!today && count > 0 && (
+                    <span className="text-[10px] text-gray-300 font-medium">{count}</span>
+                  )}
+                  {isCollapsed
+                    ? <ChevronRightIcon className={clsx('w-3.5 h-3.5', today ? 'text-white/60' : 'text-gray-300')} />
+                    : <ChevronDownIcon  className={clsx('w-3.5 h-3.5', today ? 'text-white/60' : 'text-gray-300')} />
+                  }
+                </span>
               </div>
 
               {/* Events + chores */}
-              {count > 0 ? (
-                <div className="divide-y divide-gray-50">
-                  {dayEvents.map(e => <EventRow key={e.id} event={e} />)}
-                  {dayChores.map(c => <ChoreRow  key={c.id} chore={c} />)}
-                </div>
-              ) : (
-                <p className="px-4 py-2.5 text-xs text-gray-300 italic">Nothing scheduled</p>
+              {!isCollapsed && (
+                count > 0 ? (
+                  <div className="divide-y divide-gray-50">
+                    {dayEvents.map(e => <EventRow key={e.id} event={e} />)}
+                    {dayChores.map(c => <ChoreRow  key={c.id} chore={c} />)}
+                  </div>
+                ) : (
+                  <p className="px-4 py-2.5 text-xs text-gray-300 italic">Nothing scheduled</p>
+                )
               )}
             </div>
           )
