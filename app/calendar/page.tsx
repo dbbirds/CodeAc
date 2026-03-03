@@ -9,12 +9,23 @@ export default function CalendarPage() {
     <AppShell title="Calendar">
       <div className="h-[calc(100vh-8rem)] px-0">
         {embedUrl ? (
-          <iframe
-            src={embedUrl}
-            className="w-full h-full border-0"
-            title="Shared Google Calendar"
-            sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
-          />
+          <div className="flex flex-col h-full">
+            <iframe
+              src={embedUrl}
+              className="w-full flex-1 border-0"
+              title="Shared Google Calendar"
+            />
+            <div className="py-2 text-center border-t border-gray-100">
+              <a
+                href={embedUrl.replace('/embed?', '/r?')}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-brand-600 underline"
+              >
+                Open in Google Calendar
+              </a>
+            </div>
+          </div>
         ) : (
           <div className="flex flex-col items-center justify-center h-full px-6 text-center gap-4">
             <div className="text-5xl">📅</div>
