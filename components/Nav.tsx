@@ -7,20 +7,17 @@ import {
   CheckCircleIcon,
   ShoppingCartIcon,
   CalendarDaysIcon,
-  WrenchScrewdriverIcon,
 } from '@heroicons/react/24/outline'
 import {
   CheckCircleIcon as CheckCircleIconSolid,
   ShoppingCartIcon as ShoppingCartIconSolid,
   CalendarDaysIcon as CalendarDaysIconSolid,
-  WrenchScrewdriverIcon as WrenchScrewdriverIconSolid,
 } from '@heroicons/react/24/solid'
 
 const tabs = [
-  { href: '/chores',    label: 'Chores',    Icon: CheckCircleIcon,       ActiveIcon: CheckCircleIconSolid },
-  { href: '/groceries', label: 'Groceries', Icon: ShoppingCartIcon,      ActiveIcon: ShoppingCartIconSolid },
-  { href: '/calendar',  label: 'Calendar',  Icon: CalendarDaysIcon,      ActiveIcon: CalendarDaysIconSolid },
-  { href: '/projects',  label: 'Projects',  Icon: WrenchScrewdriverIcon, ActiveIcon: WrenchScrewdriverIconSolid },
+  { href: '/chores',    label: 'Chores',    Icon: CheckCircleIcon,  ActiveIcon: CheckCircleIconSolid },
+  { href: '/groceries', label: 'Groceries', Icon: ShoppingCartIcon, ActiveIcon: ShoppingCartIconSolid },
+  { href: '/calendar',  label: 'Calendar',  Icon: CalendarDaysIcon, ActiveIcon: CalendarDaysIconSolid },
 ]
 
 export function Nav() {
