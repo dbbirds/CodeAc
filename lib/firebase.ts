@@ -2,6 +2,7 @@ import { initializeApp, getApps } from 'firebase/app'
 import { getAuth, GoogleAuthProvider } from 'firebase/auth'
 import { getFirestore } from 'firebase/firestore'
 import { getStorage } from 'firebase/storage'
+import { getMessaging, isSupported } from 'firebase/messaging'
 
 const firebaseConfig = {
   apiKey:            process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -18,3 +19,11 @@ export const auth     = getAuth(app)
 export const db       = getFirestore(app)
 export const storage  = getStorage(app)
 export const googleProvider = new GoogleAuthProvider()
+
+// Messaging is only available in browser environments that support it
+export async function getMessagingInstance() {
+  if (typeof window === 'undefined') return null
+  const supported = await isSupported()
+  if (!supported) return null
+  return getMessaging(app)
+}

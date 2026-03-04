@@ -16,6 +16,13 @@ const FREQ_LABELS: Record<string, string> = {
   once: 'One-time', weekly: 'Weekly', monthly: 'Monthly', custom: 'Custom',
 }
 
+function formatTime(time: string): string {
+  const [h, m] = time.split(':').map(Number)
+  const period = h >= 12 ? 'PM' : 'AM'
+  const hour = h % 12 || 12
+  return `${hour}:${String(m).padStart(2, '0')} ${period}`
+}
+
 export function ChoreItem({ chore, user, onComplete, onUncomplete }: ChoreItemProps) {
   const isDone    = chore.completedAt !== null
   const isOverdue = !isDone && isDueOrOverdue(chore.nextDueDate)
@@ -66,6 +73,7 @@ export function ChoreItem({ chore, user, onComplete, onUncomplete }: ChoreItemPr
           ) : (
             <span className={clsx('text-xs', isOverdue ? 'text-red-500 font-medium' : 'text-gray-400')}>
               {formatDueDate(chore.nextDueDate)}
+              {chore.dueTime && ` at ${formatTime(chore.dueTime)}`}
             </span>
           )}
         </div>

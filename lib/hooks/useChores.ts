@@ -17,6 +17,7 @@ function fromFirestore(id: string, data: Record<string, unknown>): Chore {
     dayOfWeek:       data.dayOfWeek as number | undefined,
     dayOfMonth:      data.dayOfMonth as number | undefined,
     intervalDays:    data.intervalDays as number | undefined,
+    dueTime:         (data.dueTime as string | undefined) ?? undefined,
     assignedTo:      (data.assignedTo as string | null) ?? null,
     assignedToName:  (data.assignedToName as string | null) ?? null,
     completedAt:     data.completedAt ? (data.completedAt as Timestamp).toDate() : null,
@@ -44,9 +45,9 @@ export function useChores() {
   async function addChore(
     data: Omit<Chore, 'id' | 'completedAt' | 'completedBy' | 'completedByName' | 'nextDueDate' | 'createdAt'>,
     user: AppUser
-  ) {
+  ): Promise<string> {
     const nextDueDate = calcNextDueDate(data)
-    await addDoc(collection(db, 'chores'), {
+    const ref = await addDoc(collection(db, 'chores'), {
       ...data,
       completedAt:     null,
       completedBy:     null,
@@ -55,6 +56,7 @@ export function useChores() {
       createdBy:       user.uid,
       createdAt:       Timestamp.now(),
     })
+    return ref.id
   }
 
   async function completeChore(chore: Chore, user: AppUser) {

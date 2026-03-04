@@ -19,6 +19,7 @@ export interface Chore {
   dayOfMonth?: number
   // custom: every N days
   intervalDays?: number
+  dueTime?: string                // optional HH:MM reminder time, e.g. "08:00"
   assignedTo?: string | null      // userId or null
   assignedToName?: string | null
   completedAt: Date | null
@@ -27,6 +28,16 @@ export interface Chore {
   nextDueDate: Date
   createdBy: string
   createdAt: Date
+}
+
+// ─── Notifications ────────────────────────────────────────────────────────────
+
+export interface ChoreNotification {
+  id: string          // "{userId}_{choreId}"
+  userId: string
+  choreId: string
+  fcmToken: string
+  enabled: boolean
 }
 
 // ─── Groceries ───────────────────────────────────────────────────────────────
