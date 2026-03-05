@@ -43,14 +43,20 @@ export function useProjects() {
     data: Omit<Project, 'id' | 'photos' | 'createdBy' | 'createdByName' | 'createdAt' | 'updatedAt'>,
     user: AppUser
   ) {
-    await addDoc(collection(db, 'projects'), {
-      ...data,
+    const docData: Record<string, unknown> = {
+      name:          data.name,
+      status:        data.status,
+      priority:      data.priority,
       photos:        [],
       createdBy:     user.uid,
       createdByName: user.displayName,
       createdAt:     Timestamp.now(),
       updatedAt:     Timestamp.now(),
-    })
+    }
+    if (data.estimatedCost !== undefined) docData.estimatedCost = data.estimatedCost
+    if (data.actualCost    !== undefined) docData.actualCost    = data.actualCost
+    if (data.notes         !== undefined) docData.notes         = data.notes
+    await addDoc(collection(db, 'projects'), docData)
   }
 
   async function updateProject(id: string, updates: Partial<Omit<Project, 'id' | 'createdBy' | 'createdAt'>>) {

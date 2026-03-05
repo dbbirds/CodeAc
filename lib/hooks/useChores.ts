@@ -47,15 +47,23 @@ export function useChores() {
     user: AppUser
   ): Promise<string> {
     const nextDueDate = calcNextDueDate(data)
-    const ref = await addDoc(collection(db, 'chores'), {
-      ...data,
+    const docData: Record<string, unknown> = {
+      name:            data.name,
+      frequency:       data.frequency,
+      assignedTo:      data.assignedTo,
+      assignedToName:  data.assignedToName,
       completedAt:     null,
       completedBy:     null,
       completedByName: null,
       nextDueDate:     Timestamp.fromDate(nextDueDate),
       createdBy:       user.uid,
       createdAt:       Timestamp.now(),
-    })
+    }
+    if (data.dayOfWeek !== undefined)    docData.dayOfWeek    = data.dayOfWeek
+    if (data.dayOfMonth !== undefined)   docData.dayOfMonth   = data.dayOfMonth
+    if (data.intervalDays !== undefined) docData.intervalDays = data.intervalDays
+    if (data.dueTime !== undefined)      docData.dueTime      = data.dueTime
+    const ref = await addDoc(collection(db, 'chores'), docData)
     return ref.id
   }
 

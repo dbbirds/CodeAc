@@ -8,9 +8,9 @@ export function LoginPage({ onSignIn }: LoginPageProps) {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-brand-50 to-white px-6">
       <div className="text-center mb-10">
-        <div className="text-5xl mb-4">🏠</div>
+        <div className="text-5xl mb-4">🏠🐺</div>
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Home HQ</h1>
-        <p className="text-gray-500 text-base">Your household, all in one place.</p>
+        <p className="text-gray-500 text-base">Philo's household, all in one place.</p>
       </div>
 
       <div className="w-full max-w-sm">
@@ -42,7 +42,7 @@ export function LoginPage({ onSignIn }: LoginPageProps) {
         </button>
 
         <p className="text-center text-xs text-gray-400 mt-6">
-          Only you and Jenna can access this app.
+          An app for Philo's House
         </p>
       </div>
     </div>

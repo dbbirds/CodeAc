@@ -22,11 +22,13 @@ export function AddProjectModal({ open, onClose, onAdd, user }: AddProjectModalP
   const [actualCost, setActual]       = useState('')
   const [notes, setNotes]             = useState('')
   const [saving, setSaving]           = useState(false)
+  const [error, setError]             = useState<string | null>(null)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!name.trim()) return
     setSaving(true)
+    setError(null)
     try {
       await onAdd(
         {
@@ -42,6 +44,8 @@ export function AddProjectModal({ open, onClose, onAdd, user }: AddProjectModalP
       setName(''); setStatus('not-started'); setPriority('medium')
       setEstimated(''); setActual(''); setNotes('')
       onClose()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to add project')
     } finally {
       setSaving(false)
     }
@@ -115,6 +119,10 @@ export function AddProjectModal({ open, onClose, onAdd, user }: AddProjectModalP
             onChange={e => setNotes(e.target.value)}
           />
         </div>
+
+        {error && (
+          <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{error}</p>
+        )}
 
         <div className="flex gap-2 pt-2">
           <button type="button" onClick={onClose} className="btn-secondary flex-1">Cancel</button>

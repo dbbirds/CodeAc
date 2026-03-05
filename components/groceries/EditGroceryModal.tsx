@@ -2,37 +2,43 @@
 
 import { useState, useEffect } from 'react'
 import { Modal } from '@/components/ui/Modal'
-import type { AppUser } from '@/lib/types'
+import { CATEGORIES, STORES, guessCategory } from '@/lib/groceryCategories'
+import type { GroceryItem } from '@/lib/types'
 
-interface AddGroceryModalProps {
-  open: boolean
+interface EditGroceryModalProps {
+  item: GroceryItem | null
   onClose: () => void
-  onAdd: (data: { name: string; quantity?: string; category?: string; store?: string; recurring: boolean }, user: AppUser) => Promise<void>
-  user: AppUser
-  defaultStore?: string
+  onSave: (id: string, data: { name: string; quantity?: string; category?: string; store?: string; recurring: boolean }) => Promise<void>
+  onDelete: (id: string) => Promise<void>
 }
 
-import { CATEGORIES, STORES, guessCategory } from '@/lib/groceryCategories'
-
-export function AddGroceryModal({ open, onClose, onAdd, user, defaultStore }: AddGroceryModalProps) {
-  const [name, setName]               = useState('')
-  const [quantity, setQuantity]       = useState('')
-  const [category, setCategory]       = useState('')
+export function EditGroceryModal({ item, onClose, onSave, onDelete }: EditGroceryModalProps) {
+  const [name, setName]                     = useState('')
+  const [quantity, setQuantity]             = useState('')
+  const [category, setCategory]             = useState('')
   const [categoryLocked, setCategoryLocked] = useState(false)
-  const [store, setStore]             = useState(defaultStore ?? '')
-  const [recurring, setRecurring]     = useState(false)
-  const [saving, setSaving]           = useState(false)
+  const [store, setStore]                   = useState('')
+  const [recurring, setRecurring]           = useState(false)
+  const [saving, setSaving]                 = useState(false)
+  const [deleting, setDeleting]             = useState(false)
+  const [confirmDelete, setConfirmDelete]   = useState(false)
 
-  // Sync store when modal opens for a specific store
+  // Populate fields when a different item is opened
   useEffect(() => {
-    if (open) setStore(defaultStore ?? '')
-  }, [open, defaultStore])
+    if (item) {
+      setName(item.name)
+      setQuantity(item.quantity ?? '')
+      setCategory(item.category ?? '')
+      setCategoryLocked(!!item.category)
+      setStore(item.store ?? '')
+      setRecurring(item.recurring)
+      setConfirmDelete(false)
+    }
+  }, [item])
 
   function handleNameChange(value: string) {
     setName(value)
-    if (!categoryLocked) {
-      setCategory(guessCategory(value))
-    }
+    if (!categoryLocked) setCategory(guessCategory(value))
   }
 
   function handleCategoryChange(value: string) {
@@ -40,46 +46,43 @@ export function AddGroceryModal({ open, onClose, onAdd, user, defaultStore }: Ad
     setCategoryLocked(true)
   }
 
-  function reset() {
-    setName(''); setQuantity(''); setCategory(''); setCategoryLocked(false)
-    setStore(defaultStore ?? ''); setRecurring(false)
-  }
-
-  function handleClose() {
-    reset()
-    onClose()
-  }
-
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!name.trim()) return
+    if (!name.trim() || !item) return
     setSaving(true)
     try {
-      await onAdd(
-        {
-          name: name.trim(),
-          quantity: quantity.trim() || undefined,
-          category: category || undefined,
-          store: store || undefined,
-          recurring,
-        },
-        user
-      )
-      reset()
+      await onSave(item.id, {
+        name: name.trim(),
+        quantity: quantity.trim() || undefined,
+        category: category || undefined,
+        store: store || undefined,
+        recurring,
+      })
       onClose()
     } finally {
       setSaving(false)
     }
   }
 
+  async function handleDelete() {
+    if (!item) return
+    if (!confirmDelete) { setConfirmDelete(true); return }
+    setDeleting(true)
+    try {
+      await onDelete(item.id)
+      onClose()
+    } finally {
+      setDeleting(false)
+    }
+  }
+
   return (
-    <Modal open={open} onClose={handleClose} title="Add Grocery Item">
+    <Modal open={!!item} onClose={onClose} title="Edit item">
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="label">Item name</label>
           <input
             className="input"
-            placeholder="e.g. Whole milk"
             value={name}
             onChange={e => handleNameChange(e.target.value)}
             autoFocus
@@ -131,9 +134,21 @@ export function AddGroceryModal({ open, onClose, onAdd, user, defaultStore }: Ad
         </label>
 
         <div className="flex gap-2 pt-2">
-          <button type="button" onClick={handleClose} className="btn-secondary flex-1">Cancel</button>
+          <button
+            type="button"
+            onClick={handleDelete}
+            disabled={deleting}
+            className={`flex-shrink-0 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+              confirmDelete
+                ? 'bg-red-500 text-white hover:bg-red-600'
+                : 'bg-red-50 text-red-500 hover:bg-red-100'
+            }`}
+          >
+            {deleting ? '…' : confirmDelete ? 'Confirm?' : 'Delete'}
+          </button>
+          <button type="button" onClick={onClose} className="btn-secondary flex-1">Cancel</button>
           <button type="submit" className="btn-primary flex-1" disabled={saving || !name.trim()}>
-            {saving ? 'Adding…' : 'Add item'}
+            {saving ? 'Saving…' : 'Save'}
           </button>
         </div>
       </form>
