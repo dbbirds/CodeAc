@@ -3,6 +3,7 @@
 import clsx from 'clsx'
 import { formatDueDate, isDueOrOverdue } from '@/lib/dates'
 import { Badge } from '@/components/ui/Badge'
+import { PencilSquareIcon } from '@heroicons/react/24/outline'
 import type { Chore, AppUser } from '@/lib/types'
 
 interface ChoreItemProps {
@@ -10,6 +11,7 @@ interface ChoreItemProps {
   user: AppUser
   onComplete: (chore: Chore) => void
   onUncomplete: (chore: Chore) => void
+  onEdit: (chore: Chore) => void
 }
 
 const FREQ_LABELS: Record<string, string> = {
@@ -23,7 +25,7 @@ function formatTime(time: string): string {
   return `${hour}:${String(m).padStart(2, '0')} ${period}`
 }
 
-export function ChoreItem({ chore, user, onComplete, onUncomplete }: ChoreItemProps) {
+export function ChoreItem({ chore, user, onComplete, onUncomplete, onEdit }: ChoreItemProps) {
   const isDone    = chore.completedAt !== null
   const isOverdue = !isDone && isDueOrOverdue(chore.nextDueDate)
 
@@ -78,6 +80,15 @@ export function ChoreItem({ chore, user, onComplete, onUncomplete }: ChoreItemPr
           )}
         </div>
       </div>
+
+      {/* Edit */}
+      <button
+        onClick={() => onEdit(chore)}
+        className="flex-shrink-0 p-1 text-gray-300 hover:text-gray-500 transition-colors mt-0.5"
+        aria-label="Edit chore"
+      >
+        <PencilSquareIcon className="w-4 h-4" />
+      </button>
     </div>
   )
 }
