@@ -10,7 +10,9 @@ self.addEventListener('fetch', () => {})
 
 self.addEventListener('message', event => {
   if (event.data?.type === 'FIREBASE_CONFIG') {
-    firebase.initializeApp(event.data.config)
+    if (!firebase.apps.length) {
+      firebase.initializeApp(event.data.config)
+    }
     const messaging = firebase.messaging()
 
     messaging.onBackgroundMessage(payload => {
